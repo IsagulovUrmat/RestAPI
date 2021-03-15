@@ -1,3 +1,52 @@
 from django.shortcuts import render
+from rest_framework.response import Response
 
-# Create your views here.
+
+from .serializers import *
+from rest_framework import views, status
+
+
+class MealViewHard(views.APIView):
+
+    def get(self, request, *args, **kwargs):
+        meals = Meal.objects.all()
+        serializer = MealSerializerHard(meals, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = MealSerializerHard(data=request.data)
+        if serializer.is_valid():
+            name = serializer.data.get('name')
+            description = serializer.data.get('description')
+            price = serializer.data.get('price')
+            portion = serializer.data.get('portion')
+            Meal.objects.create(name=name, description=description, price=price,
+                                portion=portion
+                                )
+            return Response({"data":"OK!"})
+        return Response(serializer.errors)
+
+
+class MealView(views.APIView):
+
+    def get(self, request, *args, **kwargs):
+        meals = Meal.objects.all()
+        serializer = MealSerializer(meals, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = MealSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"data":"OK!"}, status=status.HTTP_201_CREATED)
+
+
+class MealDetailView(views.APIView):
+
+    def get(self, request, *args, **kwargs):
+        try:
+            meal = Meal.objects.get(id=kwargs['meal_id'])
+        except Meal.DoesNotExist:
+            return Response({"data":"Meal Not Found!"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = MealSerializer(meal)
+        return Response(serializer.data)
