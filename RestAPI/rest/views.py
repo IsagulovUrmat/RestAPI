@@ -50,3 +50,31 @@ class MealDetailView(views.APIView):
             return Response({"data":"Meal Not Found!"}, status=status.HTTP_404_NOT_FOUND)
         serializer = MealSerializer(meal)
         return Response(serializer.data)
+
+
+class CategoryView(views.APIView):
+
+    def get(self, request, *args, **kwargs):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+
+class CategoryDetailView(views.APIView):
+
+    def get(self, request, *args, **kwargs):
+        try:
+            category = Category.objects.get(name=kwargs['category_name'])
+        except Category.DoesNotExist:
+            return Response({"data":"Category Not Found!"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CategoryDetailSerializer(category)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        serializer = CategoryDetailSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"data":"OK!"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors)
+
+
+

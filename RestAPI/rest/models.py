@@ -12,11 +12,18 @@ class Meal(models.Model):
     price = models.PositiveIntegerField(verbose_name='Цена')
     portion = models.CharField(choices=portions, max_length=50, verbose_name='Порция')
     image = models.ImageField(blank=True, null=True, verbose_name='Изображение')
+    category = models.ForeignKey("Category", on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
 
 
 class Category(models.Model):
+
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
 
 
